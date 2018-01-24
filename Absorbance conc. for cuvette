@@ -2,15 +2,14 @@
 setwd('C:/Users/Antonis/Desktop/Bristol Iron Chemistry/1. Techniques/10. R coding/Tool box/Simple linear fit manual imput')
 
 #Add values
-x=log(c(0.15625,0.625,1.25,2.5,0.019531255,0.0390625,0.078125,0.3125))
-y=log(c(9.275,45.51,91.44,172,-0.1618,0.8763,3.333,21.73))
+x=log(c(0.5,0.75,1,1.5,2))
+y=log(c(0.0295,0.0819,0.1289,0.2592,0.3531))
 df<-data.frame(x,y)
 #Number of decimals and names in axis
 xdec<-2
-ydec<-1
-xname<-expression(paste('Concentration, mM'))
-yname<-'Absorbance integral'
-
+ydec<-2
+xname<-expression(paste('log([Fe',Br[2](Dpbz)[2],'])'))
+yname<-'log(Initial rate)'
 
 ###########################################################################################
 library("reshape2", lib.loc="~/R/win-library/3.2")
