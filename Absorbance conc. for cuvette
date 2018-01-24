@@ -1,0 +1,63 @@
+#Set working directory
+setwd('C:/Users/Antonis/Desktop/Bristol Iron Chemistry/1. Techniques/10. R coding/Tool box/Simple linear fit manual imput')
+
+#Add values
+x=log(c(0.15625,0.625,1.25,2.5,0.019531255,0.0390625,0.078125,0.3125))
+y=log(c(9.275,45.51,91.44,172,-0.1618,0.8763,3.333,21.73))
+df<-data.frame(x,y)
+#Number of decimals and names in axis
+xdec<-2
+ydec<-1
+xname<-expression(paste('Concentration, mM'))
+yname<-'Absorbance integral'
+
+
+###########################################################################################
+library("reshape2", lib.loc="~/R/win-library/3.2")
+library("rsvg", lib.loc="~/R/win-library/3.2")
+library("svglite", lib.loc="~/R/win-library/3.2")
+library("polynom", lib.loc="~/R/win-library/3.2")
+library("stringr", lib.loc="~/R/win-library/3.2")
+library("ggplot2", lib.loc="~/R/win-library/3.2")
+library("grid", lib.loc="C:/Program Files/R/R-3.2.5/library")
+library("scales", lib.loc="~/R/win-library/3.2")
+
+
+#Number of decimals on axis
+fmt_dcimals <- function(decimals=0){
+  function(x) format(x,nsmall = decimals,scientific = FALSE)
+}
+
+#Function to print equation on graph
+lm_eqn = function(m) {
+  
+  l <- list(a = format(coef(m)[1], digits = 4),
+            b = format(abs(coef(m)[2]), digits = 4),
+            r2 = format(summary(m)$r.squared, digits = 4),
+            astder=format(summary(m)$coef[[3]], digits = 4),
+            bstder=format(summary(m)$coef[[4]], digits = 4));
+  
+  if (coef(m)[2] >= 0)  {
+    eq <- substitute(italic(hat(y)) == a%+-%(astder) + (b%+-%bstder)*''*italic(x)*","~~italic(r)^2~"="~r2,l)
+  } else {
+    eq <- substitute(italic(y) == a%+-%(astder) - (b%+-%bstder)*''*italic(x)*","~~italic(r)^2~"="~r2,l)    
+  }
+  
+  as.character(as.expression(eq));                 
+}
+
+#Create plot
+dgm<-ggplot(df, aes(x=x, y=y))+
+geom_point(size=2)+
+theme_bw()+
+theme(panel.border = element_blank(), axis.line = element_line(),text = element_text(size=15, colour = 'black'),axis.text = element_text(size=13, colour = 'black'))+
+scale_y_continuous(name=yname, labels = fmt_dcimals(ydec))+
+scale_x_continuous(name=xname, labels = fmt_dcimals(xdec))+
+geom_smooth(method='lm',formula = y~x)+
+annotate("text", x = (min(df$x)+max(df$x))/2, y =max(predict(lm(y~x,df),interval = 'confidence')) , label = lm_eqn(lm(y ~ x, df)), colour="black", size = 5, parse=TRUE)
+
+#Save image of diagram
+svglite(paste('plot','.svg',sep=''), width = 10, height = 7)
+print(dgm)
+dev.off()
+rsvg_png(paste('plot','.svg',sep=''),paste('plot','.png',sep=''), height=2000)
